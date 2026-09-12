@@ -13,16 +13,31 @@ This repository exists to hand out a build for testing. **Grab the APK from
 `M.K.` module loads through the system picker, plays through Oboe, and the
 pattern grid follows it.
 
-That was not a given. The C++ core was heavily tested on a host — 4,746
+That was not a given. The C++ core is heavily tested on a host — 4,968
 assertions, a mutation fuzzer, a threading check, a byte-exact export round
 trip — and the Android layer compiles clean against the NDK with its JNI
-surface verified symbol by symbol. None of that says the app starts, and until
-someone ran it, nobody knew.
+surface verified symbol by symbol, 47 exports against 47 declarations. None of
+that says the app starts, and until someone ran it, nobody knew.
 
 What the build could not catch was the interface. Two rounds of screenshots
 found a grid that spent the whole screen height on five rows, chrome that
 wrapped onto four lines, and a stray caret drawn along the top edge — none of
 which is a compile error. See the release notes for what changed.
+
+**As of v0.9 your work also keeps.** There is a project format that holds a
+song exactly, an autosave that survives the process being killed, and a song
+that can be named, timed and told where to loop back to.
+
+### What has never run on a device
+
+Everything in v0.9 is verified on a host, which is exactly what was true of the
+interface bugs above before someone took a photograph. So if you touch any of
+these, what happened is worth reporting **even when it worked**:
+
+- saving a project, opening it again, and the recovery prompt after a kill
+- the song-properties strip — name, speed, tempo, volume — and the `LOOP`/`ONCE`
+  toggle with the `ORD LOOP→` button beside it
+- the step sequencer view
 
 ## Installing
 
@@ -40,12 +55,23 @@ Open a module with the file button, or tap a `.mod`/`.s3m` in any file manager
 and pick DFX Tracker. If you have nothing to hand, any ProTracker `.mod` from
 [modarchive.org](https://modarchive.org) will do.
 
-Working: MOD and S3M import, both editor views, cell editing with undo,
-playback, same-format export, and WAV render.
+Or start from nothing: `NEW…` makes a blank MOD or S3M whose first eight
+instrument slots hold a synthesised drum kit, so a new song makes a noise as
+soon as you type into it.
 
-Not built yet: the instrument/sample editor, project save/load, and XM/IT.
-AdLib/OPL instruments in an S3M are parsed and preserved but **silent** — there
-is no OPL2 emulator yet, and the UI says so rather than pretending.
+Working: MOD and S3M import, both editor views, cell editing with undo,
+playback, pattern and order editing, WAV sample import, song properties and the
+loop point, project save/load with autosave and crash recovery, same-format
+export, and WAV render.
+
+Saving a project (`.dfxp`) is lossless and separate from exporting a module,
+which is not: export tells you what the format cannot carry — a MOD has no
+volume column — *before* it writes, rather than after.
+
+Not built yet: the instrument/sample editor, selecting a block of cells,
+changing a song's channel count after it exists, and XM/IT import. AdLib/OPL
+instruments in an S3M are parsed and preserved but **silent** — there is no
+OPL2 emulator yet, and the UI says so rather than pretending.
 
 ## If something goes wrong
 

@@ -2,7 +2,7 @@
 
 A pattern tracker for Android with two views onto one song: a RAD-style VGA
 pattern editor and an FL-style step sequencer. Imports and exports ProTracker
-`.MOD` and ScreamTracker 3 `.S3M`, and renders to `.WAV`.
+`.MOD`, ScreamTracker 3 `.S3M` and FastTracker II `.XM`, and renders to `.WAV`.
 
 This repository exists to hand out a build for testing. **Grab the APK from
 [Releases](../../releases).**
@@ -13,11 +13,12 @@ This repository exists to hand out a build for testing. **Grab the APK from
 `M.K.` module loads through the system picker, plays through Oboe, and the
 pattern grid follows it.
 
-That was not a given. The C++ core is heavily tested on a host — 4,968
-assertions, a mutation fuzzer, a threading check, a byte-exact export round
-trip — and the Android layer compiles clean against the NDK with its JNI
-surface verified symbol by symbol, 47 exports against 47 declarations. None of
-that says the app starts, and until someone ran it, nobody knew.
+That was not a given. The C++ core is heavily tested on a host — 6,067
+assertions, a mutation fuzzer over all three loaders, a threading check, and a
+byte-exact export round trip for both MOD and XM — and the Android layer
+compiles clean against the NDK with its JNI surface verified symbol by symbol,
+47 exports against 47 declarations. None of that says the app starts, and until
+someone ran it, nobody knew.
 
 What the build could not catch was the interface. Two rounds of screenshots
 found a grid that spent the whole screen height on five rows, chrome that
@@ -28,6 +29,14 @@ which is a compile error. See the release notes for what changed.
 song exactly, an autosave that survives the process being killed, and a song
 that can be named, timed and told where to loop back to.
 
+**As of v0.10 it reads FastTracker II.** `.XM` loads, plays and saves —
+including the parts of XM that are not in any MOD: instruments that are a
+keymap over as many as sixteen samples, volume and panning envelopes with a
+fadeout (so a note-off *releases* instead of cutting), patterns of different
+lengths in one song, and a volume column that is a second effect column rather
+than a level. A hardware keyboard works now too, on the usual Z-M / Q-P tracker
+layout.
+
 ### What has never run on a device
 
 Everything in v0.9 is verified on a host, which is exactly what was true of the
@@ -37,6 +46,9 @@ these, what happened is worth reporting **even when it worked**:
 - saving a project, opening it again, and the recovery prompt after a kill
 - the song-properties strip — name, speed, tempo, volume — and the `LOOP`/`ONCE`
   toggle with the `ORD LOOP→` button beside it
+- opening an `.xm`, especially a big one: the format is verified against a
+  fixture and a fuzzer here, not against a shelf of real songs
+- a hardware keyboard, if you have one to pair
 - the step sequencer view
 
 ## Installing
@@ -51,27 +63,31 @@ these, what happened is worth reporting **even when it worked**:
 
 ## Using it
 
-Open a module with the file button, or tap a `.mod`/`.s3m` in any file manager
-and pick DFX Tracker. If you have nothing to hand, any ProTracker `.mod` from
-[modarchive.org](https://modarchive.org) will do.
+Open a module with the file button, or tap a `.mod`, `.s3m` or `.xm` in any
+file manager and pick DFX Tracker. If you have nothing to hand, anything from
+[modarchive.org](https://modarchive.org) will do — and an `.xm` from there is
+the most useful thing you could throw at this build.
 
 Or start from nothing: `NEW…` makes a blank MOD or S3M whose first eight
 instrument slots hold a synthesised drum kit, so a new song makes a noise as
 soon as you type into it.
 
-Working: MOD and S3M import, both editor views, cell editing with undo,
+Working: MOD, S3M and XM import, both editor views, cell editing with undo,
 playback, pattern and order editing, WAV sample import, song properties and the
 loop point, project save/load with autosave and crash recovery, same-format
-export, and WAV render.
+export, and WAV render. With a hardware keyboard: the Z-M / Q-P layout, arrows
+to move, space to play, and ctrl-Z/Y/C/V.
 
 Saving a project (`.dfxp`) is lossless and separate from exporting a module,
 which is not: export tells you what the format cannot carry — a MOD has no
 volume column — *before* it writes, rather than after.
 
 Not built yet: the instrument/sample editor, selecting a block of cells,
-changing a song's channel count after it exists, and XM/IT import. AdLib/OPL
+changing a song's channel count after it exists, and IT import. AdLib/OPL
 instruments in an S3M are parsed and preserved but **silent** — there is no
-OPL2 emulator yet, and the UI says so rather than pretending.
+OPL2 emulator yet, and the UI says so rather than pretending. XM's
+volume-column commands are loaded, played, written and shown, but cannot yet be
+typed: the editor's cell has five fields and an XM cell has six.
 
 ## If something goes wrong
 

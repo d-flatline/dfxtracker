@@ -13,11 +13,11 @@ This repository exists to hand out a build for testing. **Grab the APK from
 `M.K.` module loads through the system picker, plays through Oboe, and the
 pattern grid follows it.
 
-That was not a given. The C++ core is heavily tested on a host — 6,067
+That was not a given. The C++ core is heavily tested on a host — 6,099
 assertions, a mutation fuzzer over all three loaders, a threading check, and a
-byte-exact export round trip for both MOD and XM — and the Android layer
+byte-exact export round trip for MOD, S3M and XM alike — and the Android layer
 compiles clean against the NDK with its JNI surface verified symbol by symbol,
-47 exports against 47 declarations. None of that says the app starts, and until
+49 exports against 49 declarations. None of that says the app starts, and until
 someone ran it, nobody knew.
 
 What the build could not catch was the interface. Two rounds of screenshots
@@ -28,6 +28,12 @@ which is a compile error. See the release notes for what changed.
 **As of v0.9 your work also keeps.** There is a project format that holds a
 song exactly, an autosave that survives the process being killed, and a song
 that can be named, timed and told where to loop back to.
+
+**As of v0.11 you can write a song with it.** Blocks can be marked, copied,
+pasted, cleared and transposed; a song's channel count can be changed after it
+exists; and the app finally asks for the audio output rather than playing over
+your phone calls. That was the last of what the roadmap called Phase 1 — the
+gate between a module *editor* and a tracker.
 
 **As of v0.10 it reads FastTracker II.** `.XM` loads, plays and saves —
 including the parts of XM that are not in any MOD: instruments that are a
@@ -46,6 +52,10 @@ these, what happened is worth reporting **even when it worked**:
 - saving a project, opening it again, and the recovery prompt after a kill
 - the song-properties strip — name, speed, tempo, volume — and the `LOOP`/`ONCE`
   toggle with the `ORD LOOP→` button beside it
+- **audio focus** — play something, then take a call, then get a notification,
+  then pull the headphones out. Those are three different behaviours and only
+  the middle one should leave the song audible. None of it can be checked in a
+  host build: it is a conversation with the rest of the phone.
 - opening an `.xm`, especially a big one: the format is verified against a
   fixture and a fuzzer here, not against a shelf of real songs
 - a hardware keyboard, if you have one to pair
@@ -73,17 +83,21 @@ instrument slots hold a synthesised drum kit, so a new song makes a noise as
 soon as you type into it.
 
 Working: MOD, S3M and XM import, both editor views, cell editing with undo,
-playback, pattern and order editing, WAV sample import, song properties and the
-loop point, project save/load with autosave and crash recovery, same-format
-export, and WAV render. With a hardware keyboard: the Z-M / Q-P layout, arrows
-to move, space to play, and ctrl-Z/Y/C/V.
+playback, pattern and order editing, block copy/paste/clear/transpose, changing
+a song's channel count, WAV sample import, song properties and the loop point,
+project save/load with autosave and crash recovery, same-format export, and WAV
+render. With a hardware keyboard: the Z-M / Q-P layout, arrows to move,
+shift-arrows to mark a block, space to play, and ctrl-Z/Y/C/V.
+
+Blocks are marked rather than dragged: `MARK` sets one corner and the cursor is
+the other, because the grid's three gestures are already spent — tap places the
+cursor, one finger scrolls, two zoom.
 
 Saving a project (`.dfxp`) is lossless and separate from exporting a module,
 which is not: export tells you what the format cannot carry — a MOD has no
 volume column — *before* it writes, rather than after.
 
-Not built yet: the instrument/sample editor, selecting a block of cells,
-changing a song's channel count after it exists, and IT import. AdLib/OPL
+Not built yet: the instrument/sample editor and IT import. AdLib/OPL
 instruments in an S3M are parsed and preserved but **silent** — there is no
 OPL2 emulator yet, and the UI says so rather than pretending. XM's
 volume-column commands are loaded, played, written and shown, but cannot yet be

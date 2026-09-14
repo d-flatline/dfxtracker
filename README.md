@@ -13,11 +13,11 @@ This repository exists to hand out a build for testing. **Grab the APK from
 `M.K.` module loads through the system picker, plays through Oboe, and the
 pattern grid follows it.
 
-That was not a given. The C++ core is heavily tested on a host — 6,099
+That was not a given. The C++ core is heavily tested on a host — 6,161
 assertions, a mutation fuzzer over all three loaders, a threading check, and a
 byte-exact export round trip for MOD, S3M and XM alike — and the Android layer
 compiles clean against the NDK with its JNI surface verified symbol by symbol,
-49 exports against 49 declarations. None of that says the app starts, and until
+55 exports against 55 declarations. None of that says the app starts, and until
 someone ran it, nobody knew.
 
 What the build could not catch was the interface. Two rounds of screenshots
@@ -28,6 +28,14 @@ which is a compile error. See the release notes for what changed.
 **As of v0.9 your work also keeps.** There is a project format that holds a
 song exactly, an autosave that survives the process being killed, and a song
 that can be named, timed and told where to loop back to.
+
+**As of v0.12 the instruments are yours too.** A note key now *sounds* as you
+press it — on the piano pad, a hardware keyboard, or a sequencer pad, with the
+transport stopped or running. And an instrument can finally be edited rather
+than only imported and played: name, volume, panning, tuning, loop points and
+loop mode, plus normalise, reverse and fades. On a phone this is the only way
+instruments are reachable at all — the list beside the grid is the first thing
+a small screen drops.
 
 **As of v0.11 you can write a song with it.** Blocks can be marked, copied,
 pasted, cleared and transposed; a song's channel count can be changed after it
@@ -52,6 +60,9 @@ these, what happened is worth reporting **even when it worked**:
 - saving a project, opening it again, and the recovery prompt after a kill
 - the song-properties strip — name, speed, tempo, volume — and the `LOOP`/`ONCE`
   toggle with the `ORD LOOP→` button beside it
+- **pressing keys with nothing playing** — every note key should sound the
+  moment you press it, and a chord on a hardware keyboard should not cut itself
+  off
 - **audio focus** — play something, then take a call, then get a notification,
   then pull the headphones out. Those are three different behaviours and only
   the middle one should leave the song audible. None of it can be checked in a
@@ -89,6 +100,10 @@ project save/load with autosave and crash recovery, same-format export, and WAV
 render. With a hardware keyboard: the Z-M / Q-P layout, arrows to move,
 shift-arrows to mark a block, space to play, and ctrl-Z/Y/C/V.
 
+`INST…` opens the instrument strip for the selected slot. It also reports what
+an XM instrument holds that no control here reaches yet: how many samples hang
+off its keymap, which envelopes it carries, and its fadeout.
+
 Blocks are marked rather than dragged: `MARK` sets one corner and the cursor is
 the other, because the grid's three gestures are already spent — tap places the
 cursor, one finger scrolls, two zoom.
@@ -97,7 +112,10 @@ Saving a project (`.dfxp`) is lossless and separate from exporting a module,
 which is not: export tells you what the format cannot carry — a MOD has no
 volume column — *before* it writes, rather than after.
 
-Not built yet: the instrument/sample editor and IT import. AdLib/OPL
+Not built yet: IT import, cross-format conversion, and the parts of the sample
+editor that need a waveform on screen — trimming to a selection, and dragging
+loop points. The operations exist and are tested; what is missing is somewhere
+to see them. AdLib/OPL
 instruments in an S3M are parsed and preserved but **silent** — there is no
 OPL2 emulator yet, and the UI says so rather than pretending. XM's
 volume-column commands are loaded, played, written and shown, but cannot yet be

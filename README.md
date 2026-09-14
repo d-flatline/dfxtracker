@@ -29,6 +29,13 @@ which is a compile error. See the release notes for what changed.
 song exactly, an autosave that survives the process being killed, and a song
 that can be named, timed and told where to loop back to.
 
+**As of v0.13 the editor can type everything the loaders can read.** An S3M's
+effect column used to stop at `O` and an XM could not be given an `Fxx` at all,
+because a command was taken from a single hex nibble while the formats store up
+to thirty-four of them. The pad now offers exactly the commands the song's
+format has. XM's volume column — which is a second effect column, not a level —
+can be typed in as well.
+
 **As of v0.12 the instruments are yours too.** A note key now *sounds* as you
 press it — on the piano pad, a hardware keyboard, or a sequencer pad, with the
 transport stopped or running. And an instrument can finally be edited rather
@@ -112,10 +119,10 @@ Saving a project (`.dfxp`) is lossless and separate from exporting a module,
 which is not: export tells you what the format cannot carry — a MOD has no
 volume column — *before* it writes, rather than after.
 
-Not built yet: IT import, cross-format conversion, and the parts of the sample
-editor that need a waveform on screen — trimming to a selection, and dragging
-loop points. The operations exist and are tested; what is missing is somewhere
-to see them. AdLib/OPL
+Not built yet: IT import, cross-format conversion, OPL2 synthesis, and the
+parts of the sample editor that need a waveform on screen — trimming to a
+selection, and dragging loop points. The operations exist and are tested; what
+is missing is somewhere to see them. AdLib/OPL
 instruments in an S3M are parsed and preserved but **silent** — there is no
 OPL2 emulator yet, and the UI says so rather than pretending. XM's
 volume-column commands are loaded, played, written and shown, but cannot yet be
